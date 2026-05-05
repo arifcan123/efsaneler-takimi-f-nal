@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Efsaneler Takımı</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  color:white;
+  text-align:center;
+  background:radial-gradient(circle at top,#26315c 0%,#070812 45%,#000 100%);
+  min-height:100vh;
+  transition:.25s;
+}
+
+.screen{display:none;min-height:100vh;padding:24px}
+.active{display:flex;flex-direction:column;justify-content:center}
+
+h1{font-size:34px;margin-bottom:8px}
+h2{font-size:26px}
+p{line-height:1.5}
+
+button{
+  padding:15px 18px;
+  margin:10px;
+  border:none;
+  border-radius:16px;
+  font-size:16px;
+  font-weight:800;
+  background:#ffcc00;
+  color:#111;
+  cursor:pointer;
+}
+
+button:disabled{opacity:.65;cursor:not-allowed}
+
+.dark-btn{
+  background:#1f2538;
+  color:white;
+  border:1px solid rgba(255,255,255,.2);
+}
+
+.help-btn{
+  background:#7ee7ff;
+  color:#06131a;
+}
+
+.cinematic{
+  max-width:650px;
+  margin:0 auto;
+  padding:28px;
+  border-radius:28px;
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04));
+  border:1px solid rgba(255,204,0,.25);
+  box-shadow:0 0 45px rgba(255,204,0,.12);
+  animation:popIn .55s ease;
+}
+
+.warning{
+  color:#ffcc00;
+  font-weight:900;
+  letter-spacing:1px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+  max-width:700px;
+  margin:20px auto;
+}
+
+.card{
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04));
+  border:1px solid rgba(255,204,0,.25);
+  border-radius:24px;
+  padding:18px 12px;
+  box-shadow:0 0 25px rgba(255,204,0,.12);
+  animation:popIn .45s ease;
+}
+
+.face{
+  width:96px;
+  height:96px;
+  margin:0 auto 10px;
+  border-radius:50%;
+  background:radial-gradient(circle,#ffcc00,#8a5b00);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  box-shadow:0 0 25px rgba(255,204,0,.35);
+}
+
+.face img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.card b{display:block;font-size:20px;margin-bottom:5px}
+.card small{color:#d8d8d8}
+
+.topbar{
+  position:fixed;
+  top:0;left:0;right:0;
+  display:flex;
+  justify-content:space-between;
+  padding:14px 18px;
+  background:rgba(0,0,0,.65);
+  backdrop-filter:blur(8px);
+  font-weight:900;
+  z-index:20;
+}
+
+.mission{
+  max-width:650px;
+  margin:0 auto;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:26px;
+  padding:24px;
+  box-shadow:0 0 35px rgba(0,0,0,.45);
+  animation:popIn .45s ease;
+}
+
+.options button{
+  display:block;
+  width:100%;
+  max-width:520px;
+  margin:12px auto;
+  transition:.25s;
+}
+
+.correct-btn{
+  background:#17c964!important;
+  color:#06130b!important;
+  transform:scale(1.03);
+}
+
+.wrong-btn{
+  background:#ff4d4d!important;
+  color:white!important;
+  transform:scale(.98);
+}
+
+.power{color:#ffcc00;font-weight:900}
+
+.result-card{
+  max-width:600px;
+  margin:0 auto;
+  padding:28px;
+  border-radius:28px;
+  background:linear-gradient(180deg,rgba(255,204,0,.20),rgba(255,255,255,.06));
+  border:1px solid rgba(255,204,0,.35);
+  box-shadow:0 0 40px rgba(255,204,0,.18);
+  animation:popIn .55s ease;
+}
+
+.badge{font-size:70px}
+
+.result-img{
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  object-fit:cover;
+  box-shadow:0 0 25px rgba(255,204,0,.35);
+}
+
+.stats{
+  margin-top:18px;
+  padding:14px;
+  border-radius:18px;
+  background:rgba(0,0,0,.35);
+  font-size:14px;
+}
+
+.helper-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.72);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:50;
+  padding:20px;
+}
+
+.helper-box{
+  max-width:440px;
+  width:100%;
+  padding:26px;
+  border-radius:28px;
+  background:linear-gradient(180deg,#1b2440,#070812);
+  border:1px solid rgba(255,204,0,.4);
+  box-shadow:0 0 50px rgba(255,204,0,.22);
+  animation:popIn .45s ease;
+}
+
+.helper-face img{
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  object-fit:cover;
+  animation:float 1.4s infinite ease-in-out;
+  box-shadow:0 0 25px rgba(255,204,0,.35);
+}
+
+.helper-name{
+  color:#ffcc00;
+  font-weight:900;
+  font-size:22px;
+}
+
+.feedback{
+  position:fixed;
+  left:50%;
+  top:80px;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,.78);
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:18px;
+  padding:12px 18px;
+  font-weight:900;
+  display:none;
+  z-index:60;
+}
+
+.feedback.show{
+  display:block;
+  animation:slideDown .45s ease;
+}
+
+.flash-correct{background:#073d12!important}
+.flash-wrong{background:#3d0707!important}
+
+@keyframes popIn{
+  from{opacity:0;transform:scale(.75) translateY(30px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-10px)}
+}
+
+@keyframes slideDown{
+  from{opacity:0;top:40px}
+  to{opacity:1;top:80px}
+}
+
+@media(max-width:430px){
+  .grid{grid-template-columns:1fr}
+  h1{font-size:28px}
+}
+</style>
+</head>
+
+<body>
+
+<div id="feedback" class="feedback"></div>
+
+<div id="helperOverlay" class="helper-overlay">
+  <div class="helper-box">
+    <div id="helperFace" class="helper-face"></div>
+    <div id="helperName" class="helper-name"></div>
+    <p id="helperMessage"></p>
+    <button onclick="closeHelper()">TAMAM</button>
+  </div>
+</div>
+
+<div id="landing" class="screen active">
+  <div class="cinematic">
+    <p class="warning">OPERASYON BAŞLIYOR</p>
+    <h1>EFSANELER TAKIMI</h1>
+    <p>
+      İstanbul’da tarihi eserler tehlikede.<br>
+      Terlik görünmezlik gücünü kullandı.<br>
+      Efsaneler Takımı seni göreve çağırıyor.
+    </p>
+
+    <div class="stats">
+      <div>🎮 Bu cihazda oynama: <span id="playCountLanding">0</span></div>
+      <div>🏆 En yüksek skor: <span id="bestScoreLanding">0</span></div>
+    </div>
+
+    <button onclick="go('intro')">GÖREVE BAŞLA</button>
+  </div>
+</div>
+
+<div id="intro" class="screen">
+  <div class="cinematic">
+    <p class="warning">TERLİK’İN PLANI</p>
+    <h2>Görünmez düşman harekete geçti.</h2>
+    <p>
+      Sahte eserler yerleştirildi.<br>
+      Kamyonlar yola çıkmak üzere.<br>
+      Üstat, Akıncan ve Efsaneler Takımı seni bekliyor.
+    </p>
+    <button onclick="go('character')">TAKIMA KATIL</button>
+    <button class="dark-btn" onclick="go('landing')">GERİ DÖN</button>
+  </div>
+</div>
+
+<div id="character" class="screen">
+  <h2>Karakterini Seç</h2>
+  <p>Her karakterin özel gücü var.</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="face"><img src="images/kangal.png"></div>
+      <b>Kangal</b>
+      <small>Güç: Her görevde +5 saniye</small><br>
+      <button onclick="selectChar('Kangal','kangal')">Seç</button>
+    </div>
+
+    <div class="card">
+      <div class="face"><img src="images/pisi.png"></div>
+      <b>Pişi</b>
+      <small>Güç: 1 yanlış cevabı affeder</small><br>
+      <button onclick="selectChar('Pişi','pisi')">Seç</button>
+    </div>
+
+    <div class="card">
+      <div class="face"><img src="images/firfir.png"></div>
+      <b>Fırfır</b>
+      <small>Güç: Başlangıç bonusu</small><br>
+      <button onclick="selectChar('Fırfır','firfir')">Seç</button>
+    </div>
+
+    <div class="card">
+      <div class="face"><img src="images/simit.png"></div>
+      <b>Simit</b>
+      <small>Güç: Yanlışta küçük puan koruma</small><br>
+      <button onclick="selectChar('Simit','simit')">Seç</button>
+    </div>
+
+    <div class="card">
+      <div class="face"><img src="images/kasirga.png"></div>
+      <b>Kasırga</b>
+      <small>Güç: Doğru cevapta ekstra skor</small><br>
+      <button onclick="selectChar('Kasırga','kasirga')">Seç</button>
+    </div>
+
+    <div class="card">
+      <div class="face"><img src="images/ustat.png"></div>
+      <b>Üstat</b>
+      <small>Güç: Bilgelik bonusu</small><br>
+      <button onclick="selectChar('Üstat','ustat')">Seç</button>
+    </div>
+
+    <div class="card">
+      <div class="face"><img src="images/sutlac.png"></div>
+      <b>Sütlaç</b>
+      <small>Güç: Şifre görevinde büyük bonus</small><br>
+      <button onclick="selectChar('Sütlaç','sutlac')">Seç</button>
+    </div>
+
+    <div class="card">
+      <div class="face"><img src="images/cankus.png"></div>
+      <b>Cankuş</b>
+      <small>Güç: İz görevinde bonus</small><br>
+      <button onclick="selectChar('Cankuş','cankus')">Seç</button>
+    </div>
+  </div>
+</div>
+
+<div id="game" class="screen">
+  <div class="topbar">
+    <div>⏱ <span id="time">20</span></div>
+    <div>⭐ <span id="score">0</span></div>
+  </div>
+
+  <div class="mission">
+    <p class="power" id="powerText"></p>
+    <h2 id="taskTitle"></h2>
+    <p id="taskDesc"></p>
+    <div id="helpArea"></div>
+    <div class="options" id="options"></div>
+  </div>
+</div>
+
+<div id="result" class="screen">
+  <div class="result-card">
+    <div class="badge" id="badge">🏆</div>
+    <h2 id="resultText"></h2>
+    <div id="charText"></div>
+    <p id="levelText"></p>
+    <p id="powerResult"></p>
+    <p id="finalScore"></p>
+
+    <div class="stats">
+      <div>🎮 Toplam oynama: <span id="playCountResult">0</span></div>
+      <div>🏆 En yüksek skor: <span id="bestScoreResult">0</span></div>
+      <div>🐾 Son karakter: <span id="lastCharacterResult">-</span></div>
+    </div>
+
+    <button onclick="share()">PAYLAŞ</button>
+    <button onclick="restart()">TEKRAR OYNA</button>
+  </div>
+</div>
+
+<script>
+let character="";
+let imageName="";
+let time=20;
+let score=0;
+let timer;
+let taskIndex=0;
+let mistakeShield=false;
+let finalLevel="";
+let currentTask=null;
+let answered=false;
+
+const tasks=[
+{
+title:"Kayıp Eser",
+desc:"Terlik sahte eserleri yerleştirdi. Gerçek eseri bul.",
+options:[
+{text:"🏺 Parlak ama fazla yeni duran eser",correct:false},
+{text:"🗿 Eskimiş izleri olan gerçek eser",correct:true},
+{text:"📦 Kutudan yeni çıkmış gibi duran eser",correct:false},
+{text:"🪙 Üstünde yeni boya kokusu olan eser",correct:false}
+]
+},
+{
+title:"Şifreyi Kır",
+desc:"Gizli kapı kilitli. Şifreyi rastgele tahmin etme; Üstat’tan yardım iste.",
+helper:"ustat",
+options:[
+{text:"1234",correct:false},
+{text:"8271",correct:true},
+{text:"0000",correct:false},
+{text:"1453",correct:false}
+]
+},
+{
+title:"İz Sür",
+desc:"Terlik görünmez ama kamera izleri var. Doğru yolu Akıncan tarif edebilir.",
+helper:"akincan",
+options:[
+{text:"Sol yol",correct:false},
+{text:"Orta yol",correct:true},
+{text:"Sağ yol",correct:false},
+{text:"Tünel yolu",correct:false}
+]
+},
+{
+title:"Pişi’yi Kurtar",
+desc:"Pişi yanlış yöne gidiyor. Ne yapmalısın?",
+options:[
+{text:"Onu tek başına takip et",correct:false},
+{text:"Kangal’a haber ver",correct:true},
+{text:"Bekle ve izle",correct:false},
+{text:"Terlik’le pazarlık yap",correct:false}
+]
+},
+{
+title:"Terlik’i Durdur",
+desc:"Terlik kaçmak üzere. Doğru hamleyi seç.",
+options:[
+{text:"Tek başına saldır",correct:false},
+{text:"Takımı birlikte yönlendir",correct:true},
+{text:"Saklan",correct:false},
+{text:"Eserleri bırakıp kaç",correct:false}
+]
+}
+];
+
+function go(s){
+document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
+document.getElementById(s).classList.add("active");
+updateStatsUI();
+}
+
+function selectChar(c,img){
+character=c;
+imageName=img;
+localStorage.setItem("lastCharacter",character);
+startGame();
+}
+
+function startGame(){
+score=0;
+taskIndex=0;
+mistakeShield=character==="Pişi";
+if(character==="Fırfır") score+=5;
+loadTask();
+go("game");
+}
+
+function getPowerText(){
+if(character==="Kangal") return "Kangal gücü aktif: Her görevde +5 saniye.";
+if(character==="Pişi") return mistakeShield ? "Pişi gücü aktif: 1 yanlış cevap affı hazır." : "Pişi gücü kullanıldı.";
+if(character==="Fırfır") return "Fırfır gücü aktif: Operasyona +5 başlangıç puanı.";
+if(character==="Simit") return "Simit gücü aktif: Yanlışta küçük puan koruma.";
+if(character==="Kasırga") return "Kasırga gücü aktif: Doğru cevaplarda ekstra skor.";
+if(character==="Üstat") return "Üstat gücü aktif: Bilgelik görevlerinde bonus.";
+if(character==="Sütlaç") return "Sütlaç gücü aktif: Şifre görevinde bonus skor.";
+if(character==="Cankuş") return "Cankuş gücü aktif: İz görevinde bonus skor.";
+return "";
+}
+
+function getPowerName(){
+if(character==="Kangal") return "+5 saniye";
+if(character==="Pişi") return "1 hata affı";
+if(character==="Fırfır") return "+5 başlangıç puanı";
+if(character==="Simit") return "puan koruma";
+if(character==="Kasırga") return "ekstra skor";
+if(character==="Üstat") return "bilgelik bonusu";
+if(character==="Sütlaç") return "şifre bonusu";
+if(character==="Cankuş") return "iz bonusu";
+return "yok";
+}
+
+function loadTask(){
+clearInterval(timer);
+answered=false;
+
+time=character==="Kangal" ? 20 : 15;
+currentTask=tasks[taskIndex];
+
+document.getElementById("powerText").innerText=getPowerText();
+document.getElementById("taskTitle").innerText=(taskIndex+1)+". Görev: "+currentTask.title;
+document.getElementById("taskDesc").innerText=currentTask.desc;
+
+renderHelp();
+renderOptions();
+updateUI();
+
+timer=setInterval(()=>{
+time--;
+updateUI();
+if(time<=0 && !answered){
+showFeedback("Süre doldu!");
+flash("wrong");
+nextTask();
+}
+},1000);
+}
+
+function renderHelp(){
+const helpArea=document.getElementById("helpArea");
+helpArea.innerHTML="";
+
+if(currentTask.helper==="ustat"){
+let b=document.createElement("button");
+b.className="help-btn";
+b.innerText="Üstat’tan yardım iste";
+b.onclick=()=>showHelper("ustat");
+helpArea.appendChild(b);
+}
+
+if(currentTask.helper==="akincan"){
+let b=document.createElement("button");
+b.className="help-btn";
+b.innerText="Akıncan’dan yardım iste";
+b.onclick=()=>showHelper("akincan");
+helpArea.appendChild(b);
+}
+}
+
+function renderOptions(){
+const box=document.getElementById("options");
+box.innerHTML="";
+
+currentTask.options.forEach(o=>{
+let b=document.createElement("button");
+b.innerText=o.text;
+b.dataset.correct=o.correct;
+b.onclick=()=>answer(o.correct,b);
+box.appendChild(b);
+});
+}
+
+function showHelper(type){
+if(type==="ustat"){
+document.getElementById("helperFace").innerHTML="<img src='images/ustat.png'>";
+document.getElementById("helperName").innerText="Üstat";
+document.getElementById("helperMessage").innerText="Evlat, kapının üstündeki eski taşlara bak. Sayılar ters değil düz okunur: doğru şifre 8271.";
+}
+
+if(type==="akincan"){
+document.getElementById("helperFace").innerHTML="<img src='images/akincan.png'>";
+document.getElementById("helperName").innerText="Akıncan";
+document.getElementById("helperMessage").innerText="Kameraları izledim. Terlik görünmez ama izi orta yolda kaldı. Doğru seçim: Orta yol.";
+}
+
+document.getElementById("helperOverlay").style.display="flex";
+}
+
+function closeHelper(){
+document.getElementById("helperOverlay").style.display="none";
+}
+
+function flash(type){
+if(type==="correct"){
+document.body.classList.add("flash-correct");
+setTimeout(()=>document.body.classList.remove("flash-correct"),220);
+}else{
+document.body.classList.add("flash-wrong");
+setTimeout(()=>document.body.classList.remove("flash-wrong"),220);
+}
+}
+
+function showFeedback(text){
+const el=document.getElementById("feedback");
+el.innerText=text;
+el.classList.add("show");
+setTimeout(()=>el.classList.remove("show"),900);
+}
+
+function answer(correct,btn){
+if(answered) return;
+answered=true;
+clearInterval(timer);
+
+const allButtons=document.querySelectorAll("#options button");
+allButtons.forEach(b=>{
+b.disabled=true;
+if(b.dataset.correct==="true"){
+b.classList.add("correct-btn");
+}
+});
+
+if(correct){
+let point=10;
+
+if(character==="Kasırga") point=15;
+if(character==="Sütlaç" && currentTask.title==="Şifreyi Kır") point=20;
+if(character==="Üstat" && currentTask.title==="Şifreyi Kır") point+=5;
+if(character==="Cankuş" && currentTask.title==="İz Sür") point+=5;
+
+score+=point;
+flash("correct");
+showFeedback("Doğru seçim!");
+}else{
+btn.classList.add("wrong-btn");
+
+if(character==="Pişi" && mistakeShield){
+mistakeShield=false;
+score+=5;
+flash("correct");
+showFeedback("Pişi gücü: yanlış affedildi!");
+}else{
+if(character==="Simit"){
+score=Math.max(0,score-2);
+showFeedback("Yanlış! Simit puan kaybını azalttı.");
+}else{
+showFeedback("Yanlış seçim!");
+}
+flash("wrong");
+}
+}
+
+updateUI();
+setTimeout(()=>nextTask(),1100);
+}
+
+function nextTask(){
+clearInterval(timer);
+taskIndex++;
+
+if(taskIndex>=tasks.length){
+finish();
+}else{
+loadTask();
+}
+}
+
+function updateUI(){
+document.getElementById("time").innerText=time;
+document.getElementById("score").innerText=score;
+}
+
+function finish(){
+saveStats();
+
+let badge="⚠️";
+let title="";
+let level="";
+
+if(score>=70){
+badge="👑";
+title="Gerçek bir Efsanesin!";
+level="EFSANE SEVİYE";
+finalLevel="Efsane";
+}else if(score>=45){
+badge="🔥";
+title="Takımın liderisin!";
+level="LİDER SEVİYE";
+finalLevel="Lider";
+}else{
+badge="⚠️";
+title="Daha yolun var!";
+level="ÇAYLAK SEVİYE";
+finalLevel="Çaylak";
+}
+
+document.getElementById("badge").innerText=badge;
+document.getElementById("resultText").innerText=title;
+document.getElementById("charText").innerHTML="<img class='result-img' src='images/"+imageName+".png'><br><b>"+character+"</b>";
+document.getElementById("levelText").innerText=level;
+document.getElementById("powerResult").innerText="Özel güç: "+getPowerName();
+document.getElementById("finalScore").innerText="Skor: "+score;
+
+go("result");
+}
+
+function saveStats(){
+let playCount=parseInt(localStorage.getItem("playCount") || "0");
+let bestScore=parseInt(localStorage.getItem("bestScore") || "0");
+
+playCount++;
+
+if(score>bestScore){
+bestScore=score;
+}
+
+localStorage.setItem("playCount",playCount);
+localStorage.setItem("bestScore",bestScore);
+localStorage.setItem("lastCharacter",character);
+}
+
+function updateStatsUI(){
+let playCount=localStorage.getItem("playCount") || "0";
+let bestScore=localStorage.getItem("bestScore") || "0";
+let lastCharacter=localStorage.getItem("lastCharacter") || "-";
+
+document.getElementById("playCountLanding").innerText=playCount;
+document.getElementById("bestScoreLanding").innerText=bestScore;
+
+if(document.getElementById("playCountResult")){
+document.getElementById("playCountResult").innerText=playCount;
+document.getElementById("bestScoreResult").innerText=bestScore;
+document.getElementById("lastCharacterResult").innerText=lastCharacter;
+}
+}
+
+function restart(){
+clearInterval(timer);
+go("landing");
+}
+
+function share(){
+const text="Ben Efsaneler Takımı’nda "+character+" oldum 🔥 Seviyem: "+finalLevel+" | Skorum: "+score+". Sen hangisisin?";
+const url=window.location.href;
+
+if(navigator.share){
+navigator.share({title:"Efsaneler Takımı",text:text,url:url});
+}else{
+window.open("https://wa.me/?text="+encodeURIComponent(text+" "+url),"_blank");
+}
+}
+
+updateStatsUI();
+</script>
+
+</body>
+</html>
